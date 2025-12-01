@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Signup Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            align-items:center;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <div id="login-container">
+            <h1>Login</h1>
+            <form id="login-form">
+                <div>
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" required>
+                </div>
+                <div>
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <div>
+                <p>Don't have an account? <a href="#" onclick="showSignupForm()">Sign Up</a></p>
+            </div>
+        </div>
+        
+        <div id="signup-container" style = "display: none;">
+            <h2>Sign Up</h2>
+            <form id="signup-form">
+                <div>
+                    <label for="signup-username">Username</label>
+                    <input type="text" id="signup-username" name="username" required>
+                </div>
+                <div>
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" name="password" required>
+                </div>
+                <div>
+                    <label for="role">Role</label>
+                    <select id="role" name="role" required>
+                        <option value="student">Student</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="parents">Parents</option>
+                    </select>
+                </div>
+                <div id="extra-input-container"></div>
+                <button type="submit">Sign Up</button>
+            </form>
+            <div>
+                <p>Already have an account? <a href="#" onclick="showLoginForm()">Login</a></p>
+            </div>
+        </div>
+        <p id="error-message" style="color: red; display: none;"></p>
+    </main>
+
+    <script>
+        function showSignupForm() {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('signup-container').style.display = 'block';
+        }
+
+        function showLoginForm() {
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('signup-container').style.display = 'none';
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const roleSelect = document.getElementById("role");
+            const extraInputContainer = document.getElementById("extra-input-container");
+
+            roleSelect.addEventListener("change", function () {
+                extraInputContainer.innerHTML = "";
+                if (this.value === "parents") {
+                    const newInput = document.createElement("div");
+                    newInput.innerHTML = `
+                        <label for="child-name">Child's Name</label>
+                        <input type="text" id="child-name" name="child_name" placeholder="Enter your child's name" required>
+                    `;
+                    extraInputContainer.appendChild(newInput);
+                }
+            });
+        });
+
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const username = document.getElementById("login-username").value;
+            const password = document.getElementById("login-password").value;
+
+            fetch("/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    document.getElementById('error-message').textContent = data.error;
+                    document.getElementById('error-message').style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById("signup-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const password = document.getElementById('signup-password').value;
+            const role = document.getElementById('role').value;
+            const childName = role === 'parents' ? document.getElementById('child-name').value : null;
+
+            const data = {
+                username: username,
+                password: password,
+                role: role,
+                child_name: childName
+            };
+
+            fetch('/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("회원가입 성공");
+                    window.location.href = '/';
+                } else {
+                    document.getElementById('error-message').textContent = data.error;
+                    document.getElementById('error-message').style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

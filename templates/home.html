@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        h1 {
+            text-align: center;
+        }
+        body {
+            height: 100vh;
+            display: flex;
+            align-items:center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+        }
+        button {
+            margin: 10px 0px;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>Choose language to study</h1>
+        <button class="secondary" disabled>English</button>
+        <form>
+            <button type="submit" formaction="japanese">Japanese</button>
+        </form>
+    </main>
+</body>
+</html>
+

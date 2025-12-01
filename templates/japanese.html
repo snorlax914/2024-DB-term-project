@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        h1 {
+            text-align: center;
+        }
+        body {
+            height: 100vh;
+            display: flex;
+            align-items:center;
+        }
+        .custom-button {
+            margin: 10px 0px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>Choose Level</h1>
+        <form action="/japanese_level" method="POST">
+            <button type="submit" name="level" value="N1" class="custom-button">N1</button>
+        </form>
+        <form action="/japanese_level">
+            <button type="submit" name="level" value="N2" class="custom-button secondary" disabled>N2</button>
+        </form>
+        <form action="/japanese_level">
+            <button type="submit" name="level" value="N3" class="custom-button contrast" disabled>N3</button>
+        </form>
+        <form action="/japanese_level">
+            <button type="submit" name="level" value="N4" class="custom-button" disabled>N4</button>
+        </form>
+        <form action="/japanese_level">
+            <button type="submit" name="level" value="N5" class="custom-button secondary" disabled>N5</button>
+        </form>
+    </main>
+</body>
+</html>
+

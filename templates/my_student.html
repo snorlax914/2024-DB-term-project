@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        ul {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h2>My Students</h2>
+        <ul>
+            {% for course in courses %}
+            <h5>Course Name: {{course[1]}}</h5>
+
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th>학생 이름</th>
+                        <th>피드백</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for student in student_info_by_course[course[0]] %}
+                    <tr>
+                        <td>{{student[0]}}</td>
+                        <td>
+                            <section id="modal">
+                                <button class="contrast" data-target="modal-example" onclick="toggleModal(event)"
+                                data-course-name="{{course[1]}}"
+                                data-student-name="{{student[0]}}"
+                                data-teacher-id="{{id}}">작성
+                                </button>
+                            </section>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endfor %}
+        </ul>
+    </main>
+    <dialog id="modal-example">
+        <article>
+          <header>
+            <button
+              aria-label="Close"
+              rel="prev"
+              data-target="modal-example"
+              onclick="toggleModal(event)"
+            ></button>
+            <h3>Feedback</h3>
+          </header>
+          <textarea id="feedback-text" placeholder="피드백을 작성하세요..." rows="5" style="width: 100%;"></textarea>
+          <footer>
+            <button
+              role="button"
+              class="secondary"
+              data-target="modal-example"
+              onclick="toggleModal(event)"
+            >Cancel
+            </button>
+            <button id="submit-feedback" autofocus data-target="modal-example" onclick="submitFeedback(event)">
+              Confirm
+            </button>
+          </footer>
+        </article>
+    </dialog>
+    <script>
+        let feedbackData = {};  
+
+        const isOpenClass = "modal-is-open";
+        const openingClass = "modal-is-opening";
+        const closingClass = "modal-is-closing";
+        const scrollbarWidthCssVar = "--pico-scrollbar-width";
+        const animationDuration = 400; // ms
+        let visibleModal = null;
+
+        // Toggle modal
+        const toggleModal = (event) => {
+        const button = event.currentTarget;
+        const feedbackTextarea = document.querySelector("textarea")
+
+        feedbackData = {
+            courseName: button.getAttribute("data-course-name"),
+            studentName: button.getAttribute("data-student-name"),
+            teacherId: button.getAttribute("data-teacher-id")
+        };
+        feedbackTextarea.value = ""
+
+        event.preventDefault();
+        const modal = document.getElementById(event.currentTarget.dataset.target);
+        if (!modal) return;
+        modal && (modal.open ? closeModal(modal) : openModal(modal));
+        };
+
+        // Open modal
+        const openModal = (modal) => {
+        const { documentElement: html } = document;
+        const scrollbarWidth = getScrollbarWidth();
+        if (scrollbarWidth) {
+            html.style.setProperty(scrollbarWidthCssVar, `${scrollbarWidth}px`);
+        }
+        html.classList.add(isOpenClass, openingClass);
+        setTimeout(() => {
+            visibleModal = modal;
+            html.classList.remove(openingClass);
+        }, animationDuration);
+        modal.showModal();
+        };
+
+        // Close modal
+        const closeModal = (modal) => {
+        visibleModal = null;
+        const { documentElement: html } = document;
+        html.classList.add(closingClass);
+        setTimeout(() => {
+            html.classList.remove(closingClass, isOpenClass);
+            html.style.removeProperty(scrollbarWidthCssVar);
+            modal.close();
+        }, animationDuration);
+        };
+
+        // Close with a click outside
+        document.addEventListener("click", (event) => {
+        if (visibleModal === null) return;
+        const modalContent = visibleModal.querySelector("article");
+        const isClickInside = modalContent.contains(event.target);
+        !isClickInside && closeModal(visibleModal);
+        });
+
+        const submitFeedback = (event) => {
+            const feedbackText = document.getElementById("feedback-text").value;
+            const dataToSend = {
+                courseName: feedbackData.courseName,
+                studentName: feedbackData.studentName,
+                teacherId: feedbackData.teacherId,
+                feedbackText: feedbackText
+            };
+            
+            if (feedbackText.trim() === "") {
+                alert("피드백을 입력해주세요.");
+                return;
+            }
+        
+            fetch("/submit_feedback", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({dataToSend})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("피드백이 성공적으로 제출되었습니다!");
+                } else {
+                    alert("피드백 제출에 실패했습니다.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        
+            closeModal(document.getElementById("modal-example"));
+        };
+
+        // Get scrollbar width
+        const getScrollbarWidth = () => {
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        return scrollbarWidth;
+        };
+
+        // Is scrollbar visible
+        const isScrollbarVisible = () => {
+        return document.body.scrollHeight > screen.height;
+        };
+    </script>
+</body>
+</html>

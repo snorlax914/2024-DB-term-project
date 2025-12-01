@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        nav {
+            padding: 0px 30px;
+        }
+        .table-container {
+            max-height: 80vh;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+          <li><strong>Japanese Study</strong></li>
+        </ul>
+        <ul>
+          <li><a href="/my_course" target="_blank" class="contrast">내 강의</a></li>
+          <li><a href="/my_workbook" target="_blank" class="contrast">내 단어장</a></li>
+        </ul>
+    </nav>
+    <main class="container">
+        <h2>{{level}} 한자</h2>
+        <div class="table-container">
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>한자</th>
+                        <th>한글 음훈</th>
+                        <th>의미</th>
+                        <th>음독</th>
+                        <th>훈독</th>
+                        <th>자세히</th>
+                        <th>단어장</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for word in words %}
+                    <tr>
+                        <td>{{word[0]}}</td>
+                        <td>{{word[2]}}</td>
+                        <td>{{word[3]}}</td>
+                        <td>{{word[4]}}</td>
+                        <td>{{word[5]}}</td>
+                        <td>{{word[6]}}</td>
+                        <td><a href="{{word[7]}}" target="_blank" style="white-space: nowrap;">More &rarr;</a></td>
+                        <td>
+                            <button class="register-btn"
+                            data-kanji="{{word[2]}}"
+                            data-kor="{{word[3]}}"
+                            data-meaning="{{word[4]}}"
+                            data-on="{{word[5]}}"
+                            data-kun="{{word[6]}}">등록
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <h2>수강 신청</h2>
+        <table role="grid">
+            <thead>
+                <tr>
+                    <th>강의명</th>
+                    <th>강의 언어</th>
+                    <th>수용 인원</th>
+                    <th>현재 인원</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for course in courses %}
+                <tr>
+                    <td>{{course[1]}}</td>
+                    <td>{{course[3]}}</td>
+                    <td>{{course[2]}}</td>
+                    <td>{{course[4]}}</td>
+                    <td>
+                        <button class="app-btn"
+                        data-course-id="{{course[5]}}">신청</button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const userId = {{id | tojson}};
+            const buttons = document.querySelectorAll(".register-btn");
+            buttons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const rowKanji = this.getAttribute("data-kanji");
+                    const rowKor = this.getAttribute("data-kor");
+                    const rowMeaning = this.getAttribute("data-meaning");
+                    const rowOn = this.getAttribute("data-on");
+                    const rowKun = this.getAttribute("data-kun");
+    
+                    fetch("/register", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ 
+                            master: userId,
+                            kanji: rowKanji, 
+                            kor: rowKor,
+                            meaning: rowMeaning,
+                            on: rowOn,
+                            kun: rowKun
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert("Data registered successfully!");
+                        } else {
+                            alert("Failed to register data.");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                });
+            });
+
+            const appButtons = document.querySelectorAll(".app-btn");
+            appButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const courseId = this.getAttribute("data-course-id");
+
+                    fetch("/app_course", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({course_id: courseId})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("수강신청이 완료되었습니다!");
+                        } else {
+                            alert(data.error);
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                });
+            });
+        });
+    </script>
+</body>
+</html>

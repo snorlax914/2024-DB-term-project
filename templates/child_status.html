@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        details {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h2>Child's Courses</h2>
+        <table role="grid">
+            <thead>
+                <tr>
+                    <th>강의 이름</th>
+                    <th>강의 언어</th>
+                    <th>수용 인원</th>
+                    <th>현재 인원</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for course in child_courses %}
+                <tr>
+                    <td>{{course[1]}}</td>
+                    <td>{{course[3]}}</td>
+                    <td>{{course[2]}}</td>
+                    <td>{{course[4]}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Child's Words</h2>
+        <span>현재 {{word_num}}개의 단어를 공부 중입니다.</span>
+        <details>
+            <summary role="button" class="secondary">단어 보기</summary>
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th>한자</th>
+                        <th>한글 음훈</th>
+                        <th>의미</th>
+                        <th>음독</th>
+                        <th>훈독</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for word in child_words %}
+                    <tr>
+                        <td>{{word[2]}}</td>
+                        <td>{{word[3]}}</td>
+                        <td>{{word[4]}}</td>
+                        <td>{{word[5]}}</td>
+                        <td>{{word[6]}}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </details>
+
+        <h2>Feedback</h2>
+        <table role="grid">
+            <thead>
+                <tr>
+                    <th>강의명</th>
+                    <th>선생님 ID</th>
+                    <th>피드백 내용</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for feedback in child_feedbacks %}
+                <tr>
+                    <td>{{feedback[2]}}</td>
+                    <td>{{feedback[0]}}</td>
+                    <td>{{feedback[3]}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>
